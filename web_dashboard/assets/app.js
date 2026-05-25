@@ -1034,6 +1034,35 @@ window.bindMissions = function() {
     });
   }
 
+  // Dev Cheat: Unlock everything with dramatic cascade
+  const devCheatBtn = document.getElementById("devCheatBtn");
+  if (devCheatBtn) {
+    devCheatBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      localStorage.removeItem('nudge_planet_states');
+      planetStates = Array(24).fill(null);
+      const allChecks = $$(".mission-check");
+      allChecks.forEach(c => {
+        if (c.checked) {
+          c.checked = false;
+          c.dispatchEvent(new Event('change'));
+        }
+      });
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i >= allChecks.length) {
+          clearInterval(interval);
+          return;
+        }
+        if (!allChecks[i].checked) {
+          allChecks[i].checked = true;
+          allChecks[i].dispatchEvent(new Event('change'));
+        }
+        i++;
+      }, 150);
+    });
+  }
+
   // Toggle Panel Logic (Orb System)
   const orbBtn = document.getElementById("missionOrbBtn");
   const logPanel = document.getElementById("missionLogPanel");
