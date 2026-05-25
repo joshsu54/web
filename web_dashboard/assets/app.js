@@ -1079,6 +1079,24 @@ window.bindMissions = function() {
       }
     });
   });
+  // Mouse Wheel Zoom for City View
+  const cityView = document.querySelector('.view-city');
+  const neighborhoodScene = document.querySelector('.neighborhood-scene');
+  if (cityView && neighborhoodScene) {
+    let zoomLevel = 1;
+    cityView.addEventListener('wheel', (e) => {
+      e.preventDefault(); // Prevent page scrolling
+      if (e.deltaY < 0) {
+        zoomLevel = Math.min(zoomLevel + 0.1, 3); // zoom in (max 3x)
+      } else {
+        zoomLevel = Math.max(zoomLevel - 0.1, 0.5); // zoom out (min 0.5x)
+      }
+      neighborhoodScene.style.transform = `scale(${zoomLevel})`;
+      neighborhoodScene.style.transformOrigin = 'center center';
+      neighborhoodScene.style.transition = 'transform 0.1s ease-out';
+    }, { passive: false });
+  }
+
 };
 
 function bindExamTemplates() {

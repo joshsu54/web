@@ -3793,23 +3793,22 @@ body[data-page="planet"] .building {
 /* City Plots (Isometric Style) */
 .city-plot {
   position: absolute;
-  width: 60px;
-  height: 60px;
-  background: radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
-  border: 1px dashed rgba(255, 255, 255, 0.4);
-  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  background: transparent;
+  border: none;
   transform: translate(-50%, -50%) rotateX(60deg) rotateZ(45deg);
   transform-style: preserve-3d;
   transition: all 0.3s ease;
   z-index: 5;
 }
 
-/* Base positions */
-.p1 { left: 30%; top: 60%; }
-.p2 { left: 50%; top: 75%; }
-.p3 { left: 70%; top: 60%; }
-.p4 { left: 40%; top: 45%; }
-.p5 { left: 60%; top: 45%; }
+/* Base positions (perfectly aligned with the visual grids in the background) */
+.p1 { left: 36%; top: 62%; }
+.p2 { left: 64%; top: 62%; }
+.p3 { left: 50%; top: 82%; }
+.p4 { left: 36%; top: 35%; }
+.p5 { left: 64%; top: 35%; }
 
 /* Built State (Undoes 3D rotation for text so emoji stands straight up) */
 .city-plot.built::before {
@@ -3817,17 +3816,17 @@ body[data-page="planet"] .building {
   position: absolute;
   top: 50%;
   left: 50%;
-  font-size: 55px;
-  transform: translate(-50%, -90%) rotateZ(-45deg) rotateX(-60deg);
+  font-size: 100px;
+  transform: translate(-50%, -85%) rotateZ(-45deg) rotateX(-60deg);
   transform-origin: bottom center;
-  filter: drop-shadow(0 15px 10px rgba(0,0,0,0.6));
+  filter: drop-shadow(-10px 15px 15px rgba(0,0,0,0.7));
   animation: bounceBuild 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   z-index: 10;
 }
 
 /* Building types */
 .city-plot.built-study::before { content: "🏛️"; }
-.city-plot.built-health::before { content: "🌲"; font-size: 60px; }
+.city-plot.built-health::before { content: "🌲"; font-size: 110px; }
 .city-plot.built-general::before { content: "🏠"; }
 
 /* Epic Skyscraper style */
@@ -3836,9 +3835,9 @@ body[data-page="planet"] .building {
 }
 .city-plot.built-skyscraper::before { 
   content: "🏢"; 
-  font-size: 110px; 
+  font-size: 160px; 
   /* Lift it higher and scale it up */
-  transform: translate(-50%, -95%) rotateZ(-45deg) rotateX(-60deg) scale(1.6);
+  transform: translate(-50%, -90%) rotateZ(-45deg) rotateX(-60deg);
   filter: drop-shadow(-15px 25px 20px rgba(0,0,0,0.8));
   animation: bounceBuildSkyscraper 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
