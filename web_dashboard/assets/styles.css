@@ -1847,7 +1847,7 @@ aside.panel {
 
 .tool-panel {
   width: 100%;
-  grid-template-columns: 280px 1fr;
+  grid-template-columns: 1fr;
   align-items: start;
   padding: 24px;
   border: 1px solid color-mix(in srgb, var(--page-accent) 26%, transparent);
@@ -1895,7 +1895,7 @@ aside.panel {
 
 .tool-panel > .generated-card,
 .tool-panel > .button-row {
-  grid-column: 2;
+  grid-column: auto;
 }
 
 .tool-grid .field.wide {
