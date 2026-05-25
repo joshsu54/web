@@ -202,22 +202,39 @@ function drawDonut(canvas, values, colors) {
   ctx.scale(ratio, ratio);
   const cx = rect.width / 2;
   const cy = rect.height / 2;
-  const radius = Math.min(rect.width, rect.height) * 0.34;
+  const radius = Math.min(rect.width, rect.height) * 0.32;
   const total = values.reduce((a, b) => a + b, 0);
   let start = -Math.PI / 2;
+  const gap = 0.08; // gap between segments
+  
   values.forEach((value, index) => {
     const angle = (value / total) * Math.PI * 2;
     ctx.beginPath();
-    ctx.arc(cx, cy, radius, start, start + angle);
-    ctx.lineWidth = 24;
+    ctx.arc(cx, cy, radius, start + gap/2, start + angle - gap/2);
+    ctx.lineWidth = 20;
+    ctx.lineCap = "round";
     ctx.strokeStyle = colors[index];
+    
+    // Add glowing effect
+    ctx.shadowColor = colors[index];
+    ctx.shadowBlur = 12;
+    
     ctx.stroke();
+    // Reset shadow for next draw to avoid compounding issues
+    ctx.shadowBlur = 0;
     start += angle;
   });
-  ctx.fillStyle = "#f7f8ff";
-  ctx.font = "900 34px system-ui";
+
+  // Center text
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "800 36px 'Inter', system-ui";
   ctx.textAlign = "center";
-  ctx.fillText(`${total}`, cx, cy + 10);
+  ctx.textBaseline = "middle";
+  ctx.fillText(`${total}`, cx, cy - 8);
+  
+  ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.font = "600 14px 'Inter', system-ui";
+  ctx.fillText("總樣本", cx, cy + 20);
 }
 
 function toast(message) {
