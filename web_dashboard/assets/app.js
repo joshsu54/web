@@ -1040,6 +1040,8 @@ window.bindMissions = function() {
     devCheatBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       localStorage.removeItem('nudge_planet_states');
+      localStorage.removeItem('nudge_auto_galaxy');
+      localStorage.removeItem('nudge_auto_universe');
       planetStates = Array(24).fill(null);
       const allChecks = $$(".mission-check");
       allChecks.forEach(c => {
@@ -1048,6 +1050,9 @@ window.bindMissions = function() {
           c.dispatchEvent(new Event('change'));
         }
       });
+      // Also reset view back to solar
+      switchStage('solar');
+      
       let i = 0;
       const interval = setInterval(() => {
         if (i >= allChecks.length) {

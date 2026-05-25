@@ -3762,7 +3762,7 @@ body[data-page="planet"] .building {
 
 /* View: Galaxy and Universe */
 .view-galaxy {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  position: relative; top: 0; left: 0; width: 100%; height: 80vh; min-height: 800px; overflow: hidden;
   background: radial-gradient(circle at center, #1b0033 0%, #000 100%);
   display: flex; justify-content: center; align-items: center;
   perspective: 1000px;
@@ -3806,8 +3806,8 @@ body[data-page="planet"] .building {
 }
 
 .view-universe {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background: #000; overflow: hidden;
+  position: relative; top: 0; left: 0; width: 100%; height: 80vh; min-height: 800px; overflow: hidden;
+  background: #000;
 }
 .universe-bg {
   position: absolute; width: 200%; height: 200%; top: -50%; left: -50%;
