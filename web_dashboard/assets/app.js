@@ -1102,6 +1102,15 @@ function bindExamTemplates() {
 
       const tpls = loadExamTemplates();
       tpls.push({ time, title, desc });
+      
+      const dayWeights = { "週一": 1, "週二": 2, "週三": 3, "週四": 4, "週五": 5, "週六": 6, "週日": 7 };
+      tpls.sort((a, b) => {
+        const weightA = dayWeights[a.time] || 99;
+        const weightB = dayWeights[b.time] || 99;
+        if (weightA !== weightB) return weightA - weightB;
+        return 0;
+      });
+
       saveExamTemplates(tpls);
       renderExamTemplates();
 
