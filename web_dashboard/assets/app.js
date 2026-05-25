@@ -1083,14 +1083,28 @@ window.bindMissions = function() {
 
   let planetStates = JSON.parse(localStorage.getItem('nudge_planet_states')) || Array(24).fill(null);
 
-  // Position galaxy planets in a beautiful spiral
+  // Position galaxy planets on their orbits (4 planets per orbit)
   const galaxyPlanets = document.querySelectorAll('.galaxy-planet');
   galaxyPlanets.forEach((p, i) => {
-    const r = 50 + i * 14; // Radius increases outwards
-    const theta = i * 137.5 * (Math.PI / 180); // Golden angle for natural spiral
-    p.style.left = `calc(50% + ${Math.cos(theta) * r}px)`;
-    p.style.top = `calc(50% + ${Math.sin(theta) * r}px)`;
+    const angle = (i % 4) * 90 * (Math.PI / 180); // 0, 90, 180, 270 degrees
+    p.style.left = `calc(50% + ${Math.cos(angle) * 50}%)`;
+    p.style.top = `calc(50% + ${Math.sin(angle) * 50}%)`;
   });
+
+  function triggerBlackHoleSuction() {
+    const overlay = document.getElementById('blackholeOverlay');
+    if (!overlay) return;
+    overlay.classList.add('active');
+    
+    // Suck in all active planets and UI elements
+    const elements = document.querySelectorAll('.mission-satellite.active, .galaxy-planet.active, .stage-hud, .mission-log-panel');
+    elements.forEach(el => el.classList.add('sucked-in'));
+    
+    setTimeout(() => {
+      overlay.classList.remove('active');
+      elements.forEach(el => el.classList.remove('sucked-in'));
+    }, 3000);
+  }
 
   function triggerMeteorShower() {
     const container = document.getElementById("meteorShower");
@@ -1179,7 +1193,8 @@ window.bindMissions = function() {
           if (rareType !== 'standard') {
             sat.classList.add(rareType);
             isSpecial = true;
-            if (rareType !== 'hidden-blackhole') triggerMeteorShower();
+            if (rareType === 'hidden-blackhole') triggerBlackHoleSuction();
+            else triggerMeteorShower();
           }
         }
         
@@ -1189,6 +1204,10 @@ window.bindMissions = function() {
           if (rareType !== 'standard') {
             gal.classList.add(rareType);
             isSpecial = true;
+            if (index >= 12) {
+              if (rareType === 'hidden-blackhole') triggerBlackHoleSuction();
+              else triggerMeteorShower();
+            }
           }
         }
 
