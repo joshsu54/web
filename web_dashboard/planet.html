@@ -25,20 +25,37 @@
             <div class="orbit-line orbit-two">
               <div class="mission-satellite s4"></div>
               <div class="mission-satellite s5"></div>
+              <div class="mission-satellite s6"></div>
             </div>
-            <!-- Asteroid Orbits for Solar System -->
             <div class="orbit-line orbit-three">
+              <div class="mission-satellite s7"></div>
+              <div class="mission-satellite s8"></div>
+              <div class="mission-satellite s9"></div>
+            </div>
+            <div class="orbit-line orbit-four">
+              <div class="mission-satellite s10"></div>
+              <div class="mission-satellite s11"></div>
+              <div class="mission-satellite s12"></div>
+            </div>
+            <div class="orbit-line orbit-five">
               <div class="asteroid a1"></div>
               <div class="asteroid a2"></div>
               <div class="asteroid a3"></div>
             </div>
-            <div class="orbit-line orbit-four">
-              <div class="asteroid a4"></div>
-              <div class="asteroid a5"></div>
-            </div>
-            <div class="orbit-line orbit-five">
-              <div class="asteroid a6"></div>
-            </div>
+            <!-- Meteor Shower Container -->
+            <div class="meteor-shower-container" id="meteorShower"></div>
+          </div>
+
+          <!-- Galaxy View -->
+          <div class="view-galaxy" style="display: none;">
+            <div class="galaxy-core"></div>
+            <div class="galaxy-arms"></div>
+          </div>
+
+          <!-- Universe View -->
+          <div class="view-universe" style="display: none;">
+            <div class="universe-bg"></div>
+            <div class="universe-web"></div>
           </div>
 
           <!-- City View -->
@@ -53,9 +70,14 @@
           </div>
           
           <div class="stage-hud">
-            <small>LIVE PLANET</small>
-            <strong id="planetHud">穩定成長星球</strong>
-            <span id="hudDesc">任務完成會即時點亮星星與軌道</span>
+            <small>COSMIC EVOLUTION</small>
+            <strong id="planetHud">太陽系</strong>
+            <span id="hudDesc">任務完成會累積行星數量</span>
+            <div class="stage-nav">
+              <button class="cyber-btn micro-split-btn" id="navSolar">太陽系</button>
+              <button class="cyber-btn micro-split-btn" id="navGalaxy" style="display: none;">銀河系</button>
+              <button class="cyber-btn micro-split-btn" id="navUniverse" style="display: none;">宇宙</button>
+            </div>
           </div>
 
           <!-- Mission Orb (Floating Button) -->

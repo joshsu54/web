@@ -913,14 +913,20 @@ window.bindMissions = function() {
   const list = document.getElementById("dynamicMissionList");
   if (!list) return; // Not on planet page
   
-  const tasks = JSON.parse(localStorage.getItem('nudge_tasks') || '["專注 2 小時", "完成作業 A", "早睡 (12:00前)"]');
+  const defaultTasks = [
+    "專注 2 小時", "完成作業 A", "早睡 (12:00前)", 
+    "閱讀 30 分鐘", "運動 30 分鐘", "喝水 2000cc", 
+    "冥想 10 分鐘", "整理房間", "寫日記", 
+    "學習新單字", "少吃零食", "計畫明天"
+  ];
+  const tasks = JSON.parse(localStorage.getItem('nudge_tasks')) || defaultTasks;
   // Initialize default if empty in localStorage just for the first time
   if (!localStorage.getItem('nudge_tasks')) {
     localStorage.setItem('nudge_tasks', JSON.stringify(tasks));
   }
 
   list.innerHTML = "";
-  tasks.slice(0, 5).forEach((task, index) => {
+  tasks.slice(0, 12).forEach((task, index) => {
     const sId = "s" + (index + 1);
     
     // Classify task type
@@ -1037,19 +1043,53 @@ window.bindMissions = function() {
   let currentCombo = 0;
   const comboContainer = $("#comboContainer");
 
-  function showCombo() {
+  let unlockedPlanets = parseInt(localStorage.getItem('nudge_unlocked_planets') || '0');
+
+  function triggerMeteorShower() {
+    const container = document.getElementById("meteorShower");
+    if (!container) return;
+    container.innerHTML = "";
+    for (let i = 0; i < 20; i++) {
+      const meteor = document.createElement("div");
+      meteor.className = "meteor";
+      meteor.style.left = Math.random() * 100 + "vw";
+      meteor.style.top = (Math.random() * 50 - 50) + "vh";
+      meteor.style.animation = `meteorFall ${Math.random() * 1 + 0.5}s linear forwards`;
+      meteor.style.animationDelay = Math.random() * 2 + "s";
+      container.appendChild(meteor);
+    }
+  }
+
+  function checkEvolution() {
+    if (unlockedPlanets >= 12) {
+      document.getElementById('navGalaxy').style.display = 'inline-block';
+      // Automatically switch to Galaxy if just hit 12
+      if (unlockedPlanets === 12) {
+        document.getElementById('navGalaxy').click();
+        unlockedPlanets++; // Prevent auto-switching repeatedly
+        localStorage.setItem('nudge_unlocked_planets', unlockedPlanets);
+      }
+    }
+  }
+
+  function showCombo(isSpecial) {
     currentCombo++;
     if (!comboContainer) return;
     const comboEl = document.createElement("div");
     comboEl.className = "combo-text";
-    comboEl.innerText = `COMBO x${currentCombo}!`;
-    // Add random slight rotation for dynamic feel
+    if (isSpecial) {
+      comboEl.innerText = `RARE UNLOCKED!`;
+      comboEl.style.color = "#0ff";
+      comboEl.style.textShadow = "0 0 20px #0ff";
+    } else {
+      comboEl.innerText = `COMBO x${currentCombo}!`;
+    }
     const rot = (Math.random() - 0.5) * 20;
     comboEl.style.transform = `translate(-50%, -50%) rotate(${rot}deg)`;
     comboContainer.appendChild(comboEl);
     setTimeout(() => {
       comboEl.remove();
-    }, 1500);
+    }, 2500);
   }
 
   checks.forEach(check => {
@@ -1058,27 +1098,73 @@ window.bindMissions = function() {
       const taskType = e.target.dataset.taskType || "general";
       if (!satClass) return;
       const sat = $("." + satClass);
-      const plot = $("." + satClass.replace("s", "p")); // e.g. s1 -> p1
+      const plot = $("." + satClass.replace("s", "p")); // for city view
       
       if (e.target.checked) {
-        if (sat) sat.classList.add("active");
+        let isSpecial = false;
+        if (sat) {
+          sat.classList.add("active");
+          // 20% Chance for Hidden Comet/Moon
+          const rng = Math.random();
+          if (rng < 0.2) {
+            isSpecial = true;
+            sat.classList.add(rng < 0.1 ? "hidden-comet" : "hidden-moon");
+            triggerMeteorShower();
+          }
+        }
         if (plot) {
           plot.classList.add("built");
           plot.classList.add("built-" + taskType);
         }
-        showCombo();
+        showCombo(isSpecial);
+        unlockedPlanets++;
+        localStorage.setItem('nudge_unlocked_planets', unlockedPlanets);
+        checkEvolution();
       } else {
-        if (sat) sat.classList.remove("active");
+        if (sat) {
+          sat.classList.remove("active");
+          sat.classList.remove("hidden-comet");
+          sat.classList.remove("hidden-moon");
+        }
         if (plot) {
           plot.classList.remove("built");
           plot.classList.remove("built-study");
           plot.classList.remove("built-health");
           plot.classList.remove("built-general");
+          plot.classList.remove("built-skyscraper");
         }
         currentCombo = 0;
+        // Don't decrease historical planets count on uncheck to preserve evolution
       }
     });
   });
+
+  // Stage Navigation Binding
+  const btnSolar = document.getElementById('navSolar');
+  const btnGalaxy = document.getElementById('navGalaxy');
+  const btnUniverse = document.getElementById('navUniverse');
+  const viewSolar = document.querySelector('.view-solar-system');
+  const viewGalaxy = document.querySelector('.view-galaxy');
+  const viewUniverse = document.querySelector('.view-universe');
+
+  function switchStage(stage) {
+    if (viewSolar) viewSolar.style.display = 'none';
+    if (viewGalaxy) viewGalaxy.style.display = 'none';
+    if (viewUniverse) viewUniverse.style.display = 'none';
+    
+    if (stage === 'solar' && viewSolar) viewSolar.style.display = 'block';
+    if (stage === 'galaxy' && viewGalaxy) viewGalaxy.style.display = 'flex';
+    if (stage === 'universe' && viewUniverse) viewUniverse.style.display = 'block';
+  }
+
+  if (btnSolar) btnSolar.addEventListener('click', () => switchStage('solar'));
+  if (btnGalaxy) btnGalaxy.addEventListener('click', () => switchStage('galaxy'));
+  if (btnUniverse) btnUniverse.addEventListener('click', () => switchStage('universe'));
+
+  // Initial check
+  if (unlockedPlanets >= 12 && btnGalaxy) {
+    btnGalaxy.style.display = 'inline-block';
+  }
   // Mouse Wheel Zoom for City View
   const cityView = document.querySelector('.view-city');
   const neighborhoodScene = document.querySelector('.neighborhood-scene');
