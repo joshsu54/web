@@ -1066,7 +1066,24 @@ window.bindMissions = function() {
           allChecks[i].dispatchEvent(new Event('change'));
         }
         i++;
-      }, 150);
+      }, 50);
+    });
+  }
+
+  // Direct cinematic test buttons
+  const btnForceBlackhole = document.getElementById("btnForceBlackhole");
+  if (btnForceBlackhole) {
+    btnForceBlackhole.addEventListener("click", (e) => {
+      e.stopPropagation();
+      triggerBlackHoleSuction(true);
+    });
+  }
+
+  const btnForceExplosion = document.getElementById("btnForceExplosion");
+  if (btnForceExplosion) {
+    btnForceExplosion.addEventListener("click", (e) => {
+      e.stopPropagation();
+      triggerUniverseExplosion(true);
     });
   }
 
@@ -1101,9 +1118,9 @@ window.bindMissions = function() {
     p.style.top = `calc(50% + ${Math.sin(angle) * 50}%)`;
   });
 
-  function triggerBlackHoleSuction() {
+  function triggerBlackHoleSuction(force = false) {
     const viewGalaxy = document.querySelector('.view-galaxy');
-    if (!viewGalaxy || viewGalaxy.style.display === 'none') return;
+    if (!force && (!viewGalaxy || viewGalaxy.style.display === 'none')) return;
     
     const overlay = document.getElementById('blackholeOverlay');
     if (!overlay) return;
@@ -1119,9 +1136,9 @@ window.bindMissions = function() {
     }, 3000);
   }
 
-  function triggerUniverseExplosion() {
+  function triggerUniverseExplosion(force = false) {
     const viewUniverse = document.querySelector('.view-universe');
-    if (!viewUniverse || viewUniverse.style.display === 'none') return;
+    if (!force && (!viewUniverse || viewUniverse.style.display === 'none')) return;
     
     const overlay = document.getElementById('explosionOverlay');
     if (!overlay) return;
