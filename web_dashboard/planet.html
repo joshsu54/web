@@ -58,67 +58,30 @@
             <span id="hudDesc">任務完成會即時點亮星星與軌道</span>
           </div>
 
+          <!-- Mission Orb (Floating Button) -->
+          <div id="missionOrbBtn" class="ai-orb" style="position:fixed; bottom:30px; right: 110px; z-index: 10000; background: radial-gradient(circle at 30% 30%, #0ff, #0055ff);">
+            <div style="color: white; font-weight: bold; font-family: monospace; text-shadow: 0 0 5px #0ff;">任務</div>
+          </div>
+
           <!-- Mission Log Panel -->
-          <div class="mission-log-panel">
-            <div class="mission-log-header">今日軌道任務</div>
+          <div class="mission-log-panel" id="missionLogPanel">
+            <div class="mission-log-header" style="display: flex; justify-content: space-between; align-items: center;" id="missionToggleBtn">
+              <span>今日軌道任務</span>
+              <div>
+                <button id="devDecayBtn" class="cyber-btn bypass" style="font-size: 10px; padding: 2px 5px; margin-right: 5px;">時光飛逝 (測試)</button>
+              </div>
+            </div>
             <ul class="mission-list" id="dynamicMissionList">
               <!-- Dynamically populated by JS -->
             </ul>
+            
           </div>
+          
+          <!-- Combo Display Container -->
+          <div id="comboContainer" class="combo-container"></div>
         </section>
         <section class="center-hub page-section"><a class="hub-card" href="planet-builder.html"><span>＋</span><strong>星球建築規劃器</strong><p>把下週目標轉成建築、解鎖條件和城市事件。</p><small>規劃建築</small></a><a class="hub-card" href="planet-events.html"><span>✦</span><strong>城市事件與好友拜訪</strong><p>管理好友拜訪、鼓勵、建築亮起與活動事件。</p><small>查看事件</small></a></section>
       </main>
     </div><script src="assets/app.js"></script>
-
-    <!-- Temporary Calibration Tool for House Lights -->
-    <div id="calibration-ui" style="position:fixed; top:80px; right:20px; background:rgba(0,0,0,0.8); color:#00ff88; padding:15px; border-radius:8px; z-index:9999; font-family:monospace; font-size:12px; pointer-events:none;">
-      拖曳橘色窗戶來對齊房屋<br><br>對齊後，請複製下方代碼給我：<br><br>
-      <div id="calibration-code" style="pointer-events:auto; user-select:all; margin-top:10px; padding:10px; background:#111; border:1px solid #444;"></div>
-    </div>
-    <script>
-      setTimeout(() => {
-        const lights = document.querySelectorAll('.house-light');
-        const codeDisplay = document.getElementById('calibration-code');
-        let activeLight = null;
-        
-        function updateCode() {
-          let code = '';
-          lights.forEach((l, i) => {
-            const left = l.style.left || getComputedStyle(l).left;
-            const top = l.style.top || getComputedStyle(l).top;
-            code += `.hl${i+1} { left: ${left}; top: ${top}; }<br>`;
-          });
-          codeDisplay.innerHTML = code;
-        }
-
-        lights.forEach(light => {
-          light.classList.add('active'); // force on for visibility
-          light.style.cursor = 'move';
-          light.style.pointerEvents = 'auto'; // ensure draggable
-          
-          light.addEventListener('mousedown', (e) => {
-            activeLight = light;
-            e.preventDefault();
-          });
-        });
-
-        document.addEventListener('mousemove', (e) => {
-          if (!activeLight) return;
-          const scene = document.querySelector('.neighborhood-scene');
-          const rect = scene.getBoundingClientRect();
-          const x = ((e.clientX - rect.left) / rect.width) * 100;
-          const y = ((e.clientY - rect.top) / rect.height) * 100;
-          activeLight.style.left = x.toFixed(2) + '%';
-          activeLight.style.top = y.toFixed(2) + '%';
-          updateCode();
-        });
-
-        document.addEventListener('mouseup', () => {
-          activeLight = null;
-        });
-
-        updateCode();
-      }, 1000);
-    </script>
   </body>
 </html>

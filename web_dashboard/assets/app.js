@@ -14,23 +14,31 @@ const modules = [
 
 function injectModuleMenu() {
   const sidebar = $(".sidebar");
-  const brand = $(".brand");
-  if (!sidebar || !brand || $(".module-switcher")) return;
-  const page = document.body.dataset.page || "home";
-  const switcher = document.createElement("section");
-  switcher.className = "module-switcher";
-  switcher.innerHTML = `
-    <label for="moduleSelect">選擇 Web 功能中心</label>
-    <select class="module-select" id="moduleSelect" aria-label="選擇 Web 功能中心">
-      ${modules
-        .map(([key, label, href]) => `<option value="${href}" ${key === page ? "selected" : ""}>${label}</option>`)
-        .join("")}
-    </select>
-  `;
-  brand.insertAdjacentElement("afterend", switcher);
-  $("#moduleSelect")?.addEventListener("change", (event) => {
-    window.location.href = event.target.value;
-  });
+  if (!sidebar) return;
+  
+  const nav = sidebar.querySelector(".nav");
+  if (!nav) return;
+  
+  // Determine active category based on URL
+  let activeKey = "home";
+  const path = window.location.pathname;
+  for (const [key, label, href] of modules) {
+    if (path.includes(key) || path.includes(href)) {
+      activeKey = key;
+    }
+  }
+  if (path.endsWith("/") || path.includes("index.html")) {
+    activeKey = "home";
+  }
+
+  // Populate navigation dynamically
+  nav.innerHTML = modules
+    .map(([key, label, href]) => `<a href="${href}" class="${key === activeKey ? 'active' : ''}">${label}</a>`)
+    .join("");
+
+  // Remove the old drop-down module switcher if it exists
+  const switcher = $(".module-switcher");
+  if (switcher) switcher.remove();
 }
 
 function injectDisplayModeControls() {
@@ -108,15 +116,23 @@ function drawLineChart(canvas, values, color = "#22c7bb") {
   }
 
   const gradient = ctx.createLinearGradient(0, pad, 0, rect.height - pad);
-  gradient.addColorStop(0, "rgba(34,199,187,.42)");
-  gradient.addColorStop(1, "rgba(34,199,187,0)");
+  // Simple hack to get a semi-transparent version of the color (if it's hex)
+  gradient.addColorStop(0, color === "#22c7bb" ? "rgba(34,199,187,0.4)" : color === "#8d7aff" ? "rgba(141,122,255,0.4)" : "rgba(93,140,255,0.4)");
+  gradient.addColorStop(1, "rgba(0,0,0,0)");
 
+  // Draw Filled Area
   ctx.beginPath();
   values.forEach((value, i) => {
     const x = pad + i * step;
     const y = toY(value);
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+    if (i === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      const prevX = pad + (i - 1) * step;
+      const prevY = toY(values[i - 1]);
+      const cpX = (prevX + x) / 2;
+      ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+    }
   });
   ctx.lineTo(rect.width - pad, rect.height - pad);
   ctx.lineTo(pad, rect.height - pad);
@@ -124,18 +140,56 @@ function drawLineChart(canvas, values, color = "#22c7bb") {
   ctx.fillStyle = gradient;
   ctx.fill();
 
+  // Draw Neon Line
   ctx.beginPath();
   values.forEach((value, i) => {
     const x = pad + i * step;
     const y = toY(value);
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
+    if (i === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      const prevX = pad + (i - 1) * step;
+      const prevY = toY(values[i - 1]);
+      const cpX = (prevX + x) / 2;
+      ctx.bezierCurveTo(cpX, prevY, cpX, y, x, y);
+    }
   });
   ctx.strokeStyle = color;
   ctx.lineWidth = 4;
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 12;
   ctx.stroke();
+  
+  // Reset shadow for points
+  ctx.shadowBlur = 0;
+
+  // Draw Data Points
+  values.forEach((value, i) => {
+    const x = pad + i * step;
+    const y = toY(value);
+    
+    // Outer glow dot
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // Inner white dot
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+    
+    // Values text (only for every other point or if few points to avoid clutter)
+    if (values.length <= 10 || i % 2 === 0 || i === values.length - 1) {
+      ctx.fillStyle = "#fff";
+      ctx.font = "11px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillText(value, x, y - 12);
+    }
+  });
 }
 
 function drawDonut(canvas, values, colors) {
@@ -386,17 +440,45 @@ function bindExtensionTools() {
     toast("已設為下週星球目標");
   });
 
-  const renderSavedList = (selector, items, fallback) => {
+  const renderSavedList = (selector, key, fallback) => {
     const list = $(selector);
     if (!list) return;
+    const store = JSON.parse(localStorage.getItem("nudgeWebTools") || "{}");
+    const items = store[key] || [];
+    
     if (!items.length) {
       list.innerHTML = fallback;
       return;
     }
     list.innerHTML = items
-      .map((item) => `<article><strong>${item.title}</strong><span>${item.meta}</span></article>`)
+      .map((item, index) => `
+        <article style="position: relative;">
+          <strong>${item.title}</strong>
+          <span>${item.meta}</span>
+          <button class="delete-btn" data-key="${key}" data-index="${index}" style="position: absolute; right: 10px; top: 10px; background: transparent; border: none; color: #ff3b3b; cursor: pointer; font-family: monospace;">[刪除]</button>
+        </article>
+      `)
       .join("");
   };
+
+  // Delegate delete events globally
+  document.body.addEventListener("click", (e) => {
+    if (e.target.matches(".delete-btn")) {
+      const key = e.target.dataset.key;
+      const index = parseInt(e.target.dataset.index, 10);
+      const store = JSON.parse(localStorage.getItem("nudgeWebTools") || "{}");
+      if (store[key]) {
+        store[key].splice(index, 1);
+        saveToolCollection(key, store[key]);
+        // Re-render the specific list based on the key
+        let selector, fallback;
+        if (key === "capsules") { selector = "[data-capsule-list]"; fallback = "<article><strong>尚未保存</strong><span>建立第一個時間膠囊後會出現在這裡。</span></article>"; }
+        else if (key === "encouragements") { selector = "[data-encourage-list]"; fallback = "<article><strong>尚未送出</strong><span>送出鼓勵卡後會出現在這裡。</span></article>"; }
+        else if (key === "studySchedules") { selector = "[data-study-list]"; fallback = "<article><strong>尚未排程</strong><span>新增讀書時段後會出現在這裡。</span></article>"; }
+        if (selector) renderSavedList(selector, key, fallback);
+      }
+    }
+  });
 
   const savedTools = JSON.parse(localStorage.getItem("nudgeWebTools") || "{}");
   const saveToolCollection = (key, items) => {
@@ -405,24 +487,13 @@ function bindExtensionTools() {
     current[`${key}UpdatedAt`] = new Date().toISOString();
     localStorage.setItem("nudgeWebTools", JSON.stringify(current));
   };
-  renderSavedList(
-    "[data-capsule-list]",
-    savedTools.capsules || [],
-    "<article><strong>尚未保存</strong><span>建立第一個時間膠囊後會出現在這裡。</span></article>",
-  );
-  renderSavedList(
-    "[data-encourage-list]",
-    savedTools.encouragements || [],
-    "<article><strong>尚未送出</strong><span>送出鼓勵卡後會出現在這裡。</span></article>",
-  );
-  renderSavedList(
-    "[data-study-list]",
-    savedTools.studySchedules || [],
-    "<article><strong>尚未排程</strong><span>新增讀書時段後會出現在這裡。</span></article>",
-  );
+  
+  renderSavedList("[data-capsule-list]", "capsules", "<article><strong>尚未保存</strong><span>建立第一個時間膠囊後會出現在這裡。</span></article>");
+  renderSavedList("[data-encourage-list]", "encouragements", "<article><strong>尚未送出</strong><span>送出鼓勵卡後會出現在這裡。</span></article>");
+  renderSavedList("[data-study-list]", "studySchedules", "<article><strong>尚未排程</strong><span>新增讀書時段後會出現在這裡。</span></article>");
 
   let capsuleText = "";
-  capsuleTool?.querySelector('[data-action="save-capsule"]')?.addEventListener("click", () => {
+  capsuleTool?.querySelector('[data-action="save-capsule"]')?.addEventListener("click", (e) => {
     const title = $('[data-capsule-title]', capsuleTool).value.trim() || "未命名時間膠囊";
     const date = $('[data-capsule-date]', capsuleTool).value || "未設定";
     const message = $('[data-capsule-message]', capsuleTool).value.trim();
@@ -431,30 +502,82 @@ function bindExtensionTools() {
     const store = JSON.parse(localStorage.getItem("nudgeWebTools") || "{}");
     const capsules = store.capsules || [];
     capsules.unshift({ title, meta: `${date} 解鎖`, message });
-    saveToolCollection("capsules", capsules.slice(0, 6));
-    renderSavedList("[data-capsule-list]", capsules.slice(0, 6), "");
-    toast("時間膠囊已保存");
+    saveToolCollection("capsules", capsules.slice(0, 50));
+
+    // Elf Capsule Throw Animation
+    const btn = e.currentTarget;
+    const targetEl = $("[data-capsule-list]");
+    if (btn && targetEl) {
+      const rect = btn.getBoundingClientRect();
+      const targetRect = targetEl.getBoundingClientRect();
+      const startX = rect.left + rect.width / 2;
+      const startY = rect.top + rect.height / 2;
+      const endX = targetRect.left + targetRect.width / 2;
+      const endY = targetRect.top + targetRect.height / 2;
+
+      const capsule = document.createElement("div");
+      capsule.className = "elf-capsule";
+      capsule.style.left = startX - 12 + "px";
+      capsule.style.top = startY - 12 + "px";
+      document.body.appendChild(capsule);
+
+      // Animate throwing arc
+      const duration = 600;
+      const startTime = performance.now();
+      
+      const animateThrow = (now) => {
+        const elapsed = now - startTime;
+        let progress = elapsed / duration;
+        if (progress > 1) progress = 1;
+
+        // Quadratic bezier arc
+        const controlX = startX + (endX - startX) / 2;
+        const controlY = Math.min(startY, endY) - 200;
+
+        const x = (1 - progress) * (1 - progress) * startX + 2 * (1 - progress) * progress * controlX + progress * progress * endX;
+        const y = (1 - progress) * (1 - progress) * startY + 2 * (1 - progress) * progress * controlY + progress * progress * endY;
+        
+        capsule.style.transform = `translate(${x - startX}px, ${y - startY}px) rotate(${progress * 720}deg)`;
+
+        if (progress < 1) {
+          requestAnimationFrame(animateThrow);
+        } else {
+          // Burst effect
+          const burst = document.createElement("div");
+          burst.className = "capsule-burst";
+          burst.style.left = endX + "px";
+          burst.style.top = endY + "px";
+          document.body.appendChild(burst);
+          
+          setTimeout(() => burst.remove(), 400);
+          capsule.remove();
+          
+          renderSavedList("[data-capsule-list]", "capsules", "<article><strong>尚未保存</strong><span>建立第一個時間膠囊後會出現在這裡。</span></article>");
+          toast("時間膠囊已保存");
+        }
+      };
+      requestAnimationFrame(animateThrow);
+    } else {
+      renderSavedList("[data-capsule-list]", "capsules", "<article><strong>尚未保存</strong><span>建立第一個時間膠囊後會出現在這裡。</span></article>");
+      toast("時間膠囊已保存");
+    }
   });
   capsuleTool?.querySelector('[data-action="download-capsule"]')?.addEventListener("click", () => {
     downloadTextFile("nudge-time-capsule.txt", capsuleText || "請先保存時間膠囊。");
   });
 
   encouragementTool?.querySelector('[data-action="preview-encouragement"]')?.addEventListener("click", () => {
-    const type = $('[data-encourage-type]', encouragementTool).value;
-    const tone = $('[data-encourage-tone]', encouragementTool).value;
-    const message = $('[data-encourage-message]', encouragementTool).value.trim();
-    setOutput(encouragementTool, `<strong>${type}</strong><p>語氣：${tone}。${message}</p>`);
-    toast("鼓勵卡已更新");
+    toast("預覽：這是一張溫暖的鼓勵卡。");
   });
   encouragementTool?.querySelector('[data-action="send-encouragement"]')?.addEventListener("click", () => {
-    const type = $('[data-encourage-type]', encouragementTool).value;
-    const tone = $('[data-encourage-tone]', encouragementTool).value;
-    const message = $('[data-encourage-message]', encouragementTool).value.trim();
+    const tone = $('[data-encourage-tone]', encouragementTool)?.value || "溫暖支持";
+    const type = $('[data-encourage-type]', encouragementTool)?.value || "貼圖";
+    const msg = $('[data-encourage-message]', encouragementTool)?.value.trim() || "無內容";
     const store = JSON.parse(localStorage.getItem("nudgeWebTools") || "{}");
     const encouragements = store.encouragements || [];
-    encouragements.unshift({ title: type, meta: `${tone}語氣：${message}` });
-    saveToolCollection("encouragements", encouragements.slice(0, 6));
-    renderSavedList("[data-encourage-list]", encouragements.slice(0, 6), "");
+    encouragements.unshift({ title: `${tone} ${type}`, meta: "已發送至孩子端", message: msg });
+    saveToolCollection("encouragements", encouragements.slice(0, 50));
+    renderSavedList("[data-encourage-list]", "encouragements", "<article><strong>尚未送出</strong><span>送出鼓勵卡後會出現在這裡。</span></article>");
     toast("鼓勵卡已送出 Demo");
   });
 
@@ -467,8 +590,8 @@ function bindExtensionTools() {
     const store = JSON.parse(localStorage.getItem("nudgeWebTools") || "{}");
     const studySchedules = store.studySchedules || [];
     studySchedules.unshift({ title, meta: `${time} / ${duration} / ${room}` });
-    saveToolCollection("studySchedules", studySchedules.slice(0, 6));
-    renderSavedList("[data-study-list]", studySchedules.slice(0, 6), "");
+    saveToolCollection("studySchedules", studySchedules.slice(0, 50));
+    renderSavedList("[data-study-list]", "studySchedules", "<article><strong>尚未排程</strong><span>新增讀書時段後會出現在這裡。</span></article>");
     toast("讀書時段已建立 Demo");
   });
 
@@ -772,34 +895,139 @@ window.bindMissions = function() {
   tasks.slice(0, 5).forEach((task, index) => {
     const sId = "s" + (index + 1);
     list.innerHTML += `
-      <li>
+      <li class="mission-item" data-id="${index}">
         <label>
           <input type="checkbox" class="mission-check" data-satellite="${sId}" />
           <span>${task}</span>
         </label>
+        <div class="mission-meta">
+          <div class="energy-bar-container">
+            <div class="energy-bar" id="energy-${index}" style="width: 100%;"></div>
+          </div>
+          <div class="mission-actions">
+            <button class="cyber-btn micro-split-btn">微型拆解</button>
+            <button class="cyber-btn sos-btn bypass" style="display: none;">發送 SOS</button>
+          </div>
+        </div>
       </li>
     `;
   });
 
+  // Bind Micro-split buttons
+  $$('.micro-split-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const item = e.target.closest('.mission-item');
+      const span = item.querySelector('span');
+      const taskName = span.innerText;
+      
+      const ul = document.createElement('ul');
+      ul.className = 'micro-steps';
+      ul.innerHTML = `
+        <li><label><input type="checkbox" class="micro-check"> 準備環境與文件</label></li>
+        <li><label><input type="checkbox" class="micro-check"> 規劃大綱與步驟</label></li>
+        <li><label><input type="checkbox" class="micro-check"> 專注執行 15 分鐘</label></li>
+      `;
+      span.innerHTML = `<strong>${taskName}</strong>`;
+      span.appendChild(ul);
+      e.target.style.display = 'none'; // hide split button
+    });
+  });
+
+  // Bind SOS buttons
+  $$('.sos-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      btn.innerText = "求救信號已發出！";
+      btn.style.color = "#0f0";
+      btn.style.borderColor = "#0f0";
+      btn.style.boxShadow = "inset 0 0 5px rgba(0, 255, 0, 0.2)";
+      btn.disabled = true;
+      
+      // Remove critical glitch state since friend was notified
+      const item = e.target.closest('.mission-item');
+      item.classList.remove('critical-glitch');
+      const idx = item.dataset.id;
+      const sId = "s" + (parseInt(idx) + 1);
+      const sat = $("." + sId);
+      if (sat) sat.classList.remove('critical-glitch-planet');
+      
+      // Refill energy slightly
+      const bar = item.querySelector('.energy-bar');
+      if (bar) bar.style.width = '50%';
+      bar.style.background = '#0f0';
+    });
+  });
+
+  // Dev Trigger for Decay
+  const devDecayBtn = document.getElementById("devDecayBtn");
+  if (devDecayBtn) {
+    devDecayBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      // Find all unchecked mission items and drop their energy to critical
+      $$('.mission-item').forEach(item => {
+        const check = item.querySelector('.mission-check');
+        if (check && check.checked) return; // Skip completed ones
+        
+        const bar = item.querySelector('.energy-bar');
+        if (bar) {
+          bar.style.width = '10%';
+          bar.style.background = '#f00';
+        }
+        item.classList.add('critical-glitch');
+        
+        const sosBtn = item.querySelector('.sos-btn');
+        if (sosBtn) sosBtn.style.display = 'inline-block';
+        
+        const idx = item.dataset.id;
+        const sId = "s" + (parseInt(idx) + 1);
+        const sat = $("." + sId);
+        if (sat) sat.classList.add('critical-glitch-planet');
+      });
+    });
+  }
+
+  // Toggle Panel Logic (Orb System)
+  const orbBtn = document.getElementById("missionOrbBtn");
+  const logPanel = document.getElementById("missionLogPanel");
+  if (orbBtn && logPanel) {
+    orbBtn.addEventListener("click", () => {
+      logPanel.classList.toggle("active");
+    });
+  }
+
   const checks = $$(".mission-check");
+  let currentCombo = 0;
+  const comboContainer = $("#comboContainer");
+
+  function showCombo() {
+    currentCombo++;
+    if (!comboContainer) return;
+    const comboEl = document.createElement("div");
+    comboEl.className = "combo-text";
+    comboEl.innerText = `COMBO x${currentCombo}!`;
+    // Add random slight rotation for dynamic feel
+    const rot = (Math.random() - 0.5) * 20;
+    comboEl.style.transform = `translate(-50%, -50%) rotate(${rot}deg)`;
+    comboContainer.appendChild(comboEl);
+    setTimeout(() => {
+      comboEl.remove();
+    }, 1500);
+  }
+
   checks.forEach(check => {
     check.addEventListener("change", (e) => {
       const satClass = e.target.dataset.satellite;
       if (!satClass) return;
       const sat = $("." + satClass);
-      const hlClass = satClass.replace("s", "hl");
-      const houseLight = $("." + hlClass);
+      const houseLight = $("." + satClass.replace("s", "hl"));
       
       if (e.target.checked) {
-        if (sat) {
-          sat.classList.add("active");
-        }
-        if (houseLight) {
-          houseLight.classList.add("active");
-        }
+        if (sat) sat.classList.add("active");
+        if (houseLight) houseLight.classList.add("active");
+        showCombo();
       } else {
         if (sat) sat.classList.remove("active");
         if (houseLight) houseLight.classList.remove("active");
+        currentCombo = 0;
       }
     });
   });
