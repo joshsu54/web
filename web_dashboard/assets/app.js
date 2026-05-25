@@ -1102,6 +1102,9 @@ window.bindMissions = function() {
   });
 
   function triggerBlackHoleSuction() {
+    const viewGalaxy = document.querySelector('.view-galaxy');
+    if (!viewGalaxy || viewGalaxy.style.display === 'none') return;
+    
     const overlay = document.getElementById('blackholeOverlay');
     if (!overlay) return;
     overlay.classList.add('active');
@@ -1117,6 +1120,9 @@ window.bindMissions = function() {
   }
 
   function triggerUniverseExplosion() {
+    const viewUniverse = document.querySelector('.view-universe');
+    if (!viewUniverse || viewUniverse.style.display === 'none') return;
+    
     const overlay = document.getElementById('explosionOverlay');
     if (!overlay) return;
     overlay.classList.add('active');
@@ -1132,6 +1138,9 @@ window.bindMissions = function() {
   }
 
   function triggerMeteorShower() {
+    const viewSolar = document.querySelector('.view-solar-system');
+    if (!viewSolar || viewSolar.style.display === 'none') return;
+    
     const container = document.getElementById("meteorShower");
     if (!container) return;
     container.innerHTML = "";
