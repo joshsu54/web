@@ -1873,10 +1873,18 @@ aside.panel {
 }
 
 .economy-grid div {
-  border-color: rgba(255, 173, 47, 0.24);
-  background:
-    linear-gradient(180deg, rgba(255, 173, 47, 0.12), rgba(255, 102, 120, 0.06)),
-    rgba(255, 255, 255, 0.04);
+  position: relative;
+  border-color: rgba(255, 173, 47, 0.3);
+  background: linear-gradient(145deg, rgba(255, 173, 47, 0.15), rgba(255, 102, 120, 0.08));
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.economy-grid div:hover {
+  transform: translateY(-5px) scale(1.02);
+  border-color: rgba(255, 173, 47, 0.6);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 173, 47, 0.25);
 }
 
 .research-pipeline {
@@ -2063,11 +2071,12 @@ aside.panel {
 .generated-card.blue strong { color: #5d8cff; text-shadow: 0 0 10px rgba(93, 140, 255, 0.5); }
 
 .generated-card.amber { 
-  background: linear-gradient(135deg, rgba(255, 173, 47, 0.15), rgba(255, 220, 100, 0.05));
-  border-color: rgba(255, 173, 47, 0.3);
-  box-shadow: 0 10px 30px rgba(255, 173, 47, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(255, 173, 47, 0.15), rgba(255, 173, 47, 0.05));
+  border-color: rgba(255, 173, 47, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 173, 47, 0.15);
+  backdrop-filter: blur(12px);
 }
-.generated-card.amber strong { color: #ffad2f; text-shadow: 0 0 10px rgba(255, 173, 47, 0.5); }
+.generated-card.amber strong { color: #ffad2f; text-shadow: 0 0 12px rgba(255, 173, 47, 0.6); }
 
 .generated-card.green { 
   background: linear-gradient(135deg, rgba(47, 209, 135, 0.15), rgba(150, 255, 150, 0.05));
@@ -2101,7 +2110,16 @@ aside.panel {
   padding: 16px;
   border: 1px solid rgba(255, 173, 47, 0.18);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.055);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.review-item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(93, 140, 255, 0.5);
+  background: rgba(93, 140, 255, 0.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3), 0 0 15px rgba(93, 140, 255, 0.2);
 }
 
 .review-item strong,
