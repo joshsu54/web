@@ -922,10 +922,19 @@ window.bindMissions = function() {
   list.innerHTML = "";
   tasks.slice(0, 5).forEach((task, index) => {
     const sId = "s" + (index + 1);
+    
+    // Classify task type
+    let taskType = "general";
+    if (/(書|讀|作業|考試|專注|報告)/.test(task)) {
+      taskType = "study";
+    } else if (/(健康|水|睡|運動|步)/.test(task)) {
+      taskType = "health";
+    }
+
     list.innerHTML += `
       <li class="mission-item" data-id="${index}">
         <label>
-          <input type="checkbox" class="mission-check" data-satellite="${sId}" />
+          <input type="checkbox" class="mission-check" data-satellite="${sId}" data-task-type="${taskType}" />
           <span>${task}</span>
         </label>
         <div class="mission-meta">
@@ -1044,17 +1053,26 @@ window.bindMissions = function() {
   checks.forEach(check => {
     check.addEventListener("change", (e) => {
       const satClass = e.target.dataset.satellite;
+      const taskType = e.target.dataset.taskType || "general";
       if (!satClass) return;
       const sat = $("." + satClass);
-      const houseLight = $("." + satClass.replace("s", "hl"));
+      const plot = $("." + satClass.replace("s", "p")); // e.g. s1 -> p1
       
       if (e.target.checked) {
         if (sat) sat.classList.add("active");
-        if (houseLight) houseLight.classList.add("active");
+        if (plot) {
+          plot.classList.add("built");
+          plot.classList.add("built-" + taskType);
+        }
         showCombo();
       } else {
         if (sat) sat.classList.remove("active");
-        if (houseLight) houseLight.classList.remove("active");
+        if (plot) {
+          plot.classList.remove("built");
+          plot.classList.remove("built-study");
+          plot.classList.remove("built-health");
+          plot.classList.remove("built-general");
+        }
         currentCombo = 0;
       }
     });
