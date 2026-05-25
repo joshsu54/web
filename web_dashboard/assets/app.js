@@ -585,8 +585,11 @@ function bindExtensionTools() {
     const encouragements = store.encouragements || [];
     encouragements.unshift({ title: `${tone} ${type}`, meta: "已發送至孩子端", message: msg });
     saveToolCollection("encouragements", encouragements.slice(0, 50));
-    renderSavedList("[data-encourage-list]", "encouragements", "<article><strong>尚未送出</strong><span>送出鼓勵卡後會出現在這裡。</span></article>");
-    toast("鼓勵卡已送出 Demo");
+    
+    setTimeout(() => {
+      renderSavedList("[data-encourage-list]", "encouragements", "<article><strong>尚未送出</strong><span>送出鼓勵卡後會出現在這裡。</span></article>");
+      toast("鼓勵卡已送出 Demo");
+    }, 1000);
   });
 
   studyScheduleTool?.querySelector('[data-action="save-study-schedule"]')?.addEventListener("click", () => {
