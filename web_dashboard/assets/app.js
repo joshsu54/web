@@ -386,7 +386,7 @@ function bindExtensionTools() {
     const health = price <= 40 ? "新手友善" : price <= 90 ? "價格健康" : "適合活動限定";
     setOutput(
       campaignTool,
-      `<strong>${name}：${rarity} / ${price} 枚</strong><p>${days} 天活動，${health}。以每日 15 枚、每月 400 枚上限估算，兌換壓力合理。</p>`,
+      `<span class="card-icon">🎁</span><div class="card-content"><strong>${name}：${rarity} / ${price} 枚</strong><p>${days} 天活動，${health}。以每日 15 枚、每月 400 枚上限估算，兌換壓力合理。</p></div>`,
     );
     saveDemoState("campaign", { name, rarity, price, days, health });
     toast("價格檢查完成");
