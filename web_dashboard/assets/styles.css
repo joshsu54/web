@@ -4020,28 +4020,18 @@ body[data-page="planet"] .building {
   color: #777;
 }
 
-@keyframes tossEnvelope {
+@keyframes fadeSend {
   0% {
-    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+    transform: scale(1) translateY(0);
     opacity: 1;
-    filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
-  }
-  20% {
-    transform: translate3d(-10px, 15px, 0) rotate(-15deg) scale(0.95);
-    opacity: 1;
-  }
-  60% {
-    transform: translate3d(200px, -350px, 0) rotate(360deg) scale(0.5);
-    opacity: 1;
-    filter: drop-shadow(0 30px 40px rgba(0,0,0,0.5));
   }
   100% {
-    transform: translate3d(550px, -150px, 0) rotate(720deg) scale(0);
+    transform: scale(0.95) translateY(-10px);
     opacity: 0;
   }
 }
 
 .toss-animation {
-  animation: tossEnvelope 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+  animation: fadeSend 0.4s ease forwards !important;
   pointer-events: none;
 }

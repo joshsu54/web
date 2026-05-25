@@ -575,7 +575,7 @@ function bindExtensionTools() {
       card.classList.add("toss-animation");
       setTimeout(() => {
         card.classList.remove("toss-animation");
-      }, 1300);
+      }, 400);
     }
     
     const tone = $('[data-encourage-tone]', encouragementTool)?.value || "溫暖支持";
@@ -589,7 +589,7 @@ function bindExtensionTools() {
     setTimeout(() => {
       renderSavedList("[data-encourage-list]", "encouragements", "<article><strong>尚未送出</strong><span>送出鼓勵卡後會出現在這裡。</span></article>");
       toast("鼓勵卡已送出 Demo");
-    }, 1000);
+    }, 300);
   });
 
   studyScheduleTool?.querySelector('[data-action="save-study-schedule"]')?.addEventListener("click", () => {
