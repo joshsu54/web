@@ -1921,6 +1921,11 @@ aside.panel {
   padding: 12px 14px;
 }
 
+.field select option {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
 .field textarea {
   resize: vertical;
   line-height: 1.6;
@@ -4015,4 +4020,24 @@ body[data-page="planet"] .building {
 
 .skill-node.locked .node-info strong {
   color: #777;
+}
+
+@keyframes tossEnvelope {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-20px, 10px) rotate(-5deg) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(600px, -300px) rotate(45deg) scale(0.2);
+    opacity: 0;
+  }
+}
+
+.toss-animation {
+  animation: tossEnvelope 0.8s cubic-bezier(0.5, -0.5, 1, 1) forwards !important;
+  pointer-events: none;
 }

@@ -570,6 +570,14 @@ function bindExtensionTools() {
     toast("預覽：這是一張溫暖的鼓勵卡。");
   });
   encouragementTool?.querySelector('[data-action="send-encouragement"]')?.addEventListener("click", () => {
+    const card = encouragementTool.querySelector('.generated-card');
+    if (card) {
+      card.classList.add("toss-animation");
+      setTimeout(() => {
+        card.classList.remove("toss-animation");
+      }, 900);
+    }
+    
     const tone = $('[data-encourage-tone]', encouragementTool)?.value || "溫暖支持";
     const type = $('[data-encourage-type]', encouragementTool)?.value || "貼圖";
     const msg = $('[data-encourage-message]', encouragementTool)?.value.trim() || "無內容";
