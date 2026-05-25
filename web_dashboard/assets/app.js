@@ -921,7 +921,11 @@ window.bindMissions = function() {
     "看 TED 演講", "伸展拉筋", "練習寫作",
     "複習期末", "收拾桌面", "深呼吸練習",
     "散步 15 分鐘", "感謝日記", "不喝飲料",
-    "聽 Podcast", "主動幫助人", "專案進度更新"
+    "聽 Podcast", "主動幫助人", "專案進度更新",
+    "背 10 個英文單字", "閱讀技術文章", "檢查電子郵件",
+    "做伸展操", "吃健康水果", "深蹲 30 下",
+    "學習一項新技能", "練習發音", "打掃浴室",
+    "思考明日目標", "練習呼吸法", "整理發票"
   ];
   const tasks = JSON.parse(localStorage.getItem('nudge_tasks')) || defaultTasks;
   // Initialize default if empty in localStorage just for the first time
@@ -930,7 +934,7 @@ window.bindMissions = function() {
   }
 
   list.innerHTML = "";
-  tasks.slice(0, 24).forEach((task, index) => {
+  tasks.slice(0, 36).forEach((task, index) => {
     const sId = "s" + (index + 1);
     
     // Classify task type
@@ -1042,7 +1046,7 @@ window.bindMissions = function() {
       localStorage.removeItem('nudge_planet_states');
       localStorage.removeItem('nudge_auto_galaxy');
       localStorage.removeItem('nudge_auto_universe');
-      planetStates = Array(24).fill(null);
+      planetStates = Array(36).fill(null);
       const allChecks = $$(".mission-check");
       allChecks.forEach(c => {
         if (c.checked) {
@@ -1050,8 +1054,6 @@ window.bindMissions = function() {
           c.dispatchEvent(new Event('change'));
         }
       });
-      // Also reset view back to solar
-      switchStage('solar');
       
       let i = 0;
       const interval = setInterval(() => {
@@ -1081,12 +1083,20 @@ window.bindMissions = function() {
   let currentCombo = 0;
   const comboContainer = $("#comboContainer");
 
-  let planetStates = JSON.parse(localStorage.getItem('nudge_planet_states')) || Array(24).fill(null);
+  let planetStates = JSON.parse(localStorage.getItem('nudge_planet_states')) || Array(36).fill(null);
 
   // Position galaxy planets on their orbits (4 planets per orbit)
   const galaxyPlanets = document.querySelectorAll('.galaxy-planet');
   galaxyPlanets.forEach((p, i) => {
     const angle = (i % 4) * 90 * (Math.PI / 180); // 0, 90, 180, 270 degrees
+    p.style.left = `calc(50% + ${Math.cos(angle) * 50}%)`;
+    p.style.top = `calc(50% + ${Math.sin(angle) * 50}%)`;
+  });
+
+  // Position universe planets on their orbits (3 planets per orbit)
+  const universePlanets = document.querySelectorAll('.universe-planet');
+  universePlanets.forEach((p, i) => {
+    const angle = (i % 3) * 120 * (Math.PI / 180);
     p.style.left = `calc(50% + ${Math.cos(angle) * 50}%)`;
     p.style.top = `calc(50% + ${Math.sin(angle) * 50}%)`;
   });
@@ -1103,6 +1113,21 @@ window.bindMissions = function() {
     setTimeout(() => {
       overlay.classList.remove('active');
       elements.forEach(el => el.classList.remove('sucked-in'));
+    }, 3000);
+  }
+
+  function triggerUniverseExplosion() {
+    const overlay = document.getElementById('explosionOverlay');
+    if (!overlay) return;
+    overlay.classList.add('active');
+    
+    // Blast away all UI elements
+    const elements = document.querySelectorAll('.mission-satellite.active, .galaxy-planet.active, .universe-planet.active, .stage-hud, .mission-log-panel');
+    elements.forEach(el => el.classList.add('exploded-out'));
+    
+    setTimeout(() => {
+      overlay.classList.remove('active');
+      elements.forEach(el => el.classList.remove('exploded-out'));
     }, 3000);
   }
 
@@ -1169,7 +1194,8 @@ window.bindMissions = function() {
       const taskType = e.target.dataset.taskType || "general";
       const sat = satClass ? $("." + satClass) : null;
       const plot = satClass ? $("." + satClass.replace("s", "p")) : null; // for city view
-      const gal = $(".g" + (index + 1)); // galaxy planet
+      const gal = $(".g" + (index + 1)); // galaxy planet (up to 24)
+      const uni = $(".u" + (index - 23)); // universe planet (1 to 12)
       
       if (e.target.checked) {
         let isSpecial = false;
@@ -1178,10 +1204,17 @@ window.bindMissions = function() {
         // Generate RNG state if first time
         if (!rareType) {
           const rng = Math.random();
-          if (rng < 0.05) rareType = 'hidden-blackhole'; // 5% chance
-          else if (rng < 0.15) rareType = 'hidden-comet'; // 10% chance
-          else if (rng < 0.25) rareType = 'hidden-moon'; // 10% chance
-          else rareType = 'standard';
+          if (index < 12) {
+            if (rng < 0.1) rareType = 'hidden-comet';
+            else if (rng < 0.2) rareType = 'hidden-moon';
+            else rareType = 'standard';
+          } else if (index < 24) {
+            if (rng < 0.1) rareType = 'hidden-blackhole';
+            else rareType = 'standard';
+          } else {
+            if (rng < 0.15) rareType = 'hidden-explosion';
+            else rareType = 'standard';
+          }
           
           planetStates[index] = rareType;
           localStorage.setItem('nudge_planet_states', JSON.stringify(planetStates));
@@ -1193,21 +1226,27 @@ window.bindMissions = function() {
           if (rareType !== 'standard') {
             sat.classList.add(rareType);
             isSpecial = true;
-            if (rareType === 'hidden-blackhole') triggerBlackHoleSuction();
-            else triggerMeteorShower();
+            triggerMeteorShower();
           }
         }
         
         // Apply to Galaxy (g1-g24)
-        if (gal) {
+        if (gal && index < 24) {
           gal.classList.add("active");
           if (rareType !== 'standard') {
             gal.classList.add(rareType);
             isSpecial = true;
-            if (index >= 12) {
-              if (rareType === 'hidden-blackhole') triggerBlackHoleSuction();
-              else triggerMeteorShower();
-            }
+            if (index >= 12 && rareType === 'hidden-blackhole') triggerBlackHoleSuction();
+          }
+        }
+
+        // Apply to Universe (u1-u12)
+        if (uni && index >= 24) {
+          uni.classList.add("active");
+          if (rareType !== 'standard') {
+            uni.classList.add(rareType);
+            isSpecial = true;
+            if (rareType === 'hidden-explosion') triggerUniverseExplosion();
           }
         }
 
@@ -1228,6 +1267,11 @@ window.bindMissions = function() {
         if (gal) {
           gal.classList.remove("active");
           gal.classList.remove("hidden-comet", "hidden-moon", "hidden-blackhole");
+        }
+        // Universe
+        if (uni) {
+          uni.classList.remove("active");
+          uni.classList.remove("hidden-explosion");
         }
         if (plot) {
           plot.classList.remove("built", "built-study", "built-health", "built-general", "built-skyscraper");
