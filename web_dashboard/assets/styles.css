@@ -641,12 +641,30 @@ canvas {
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 14px;
+  gap: 24px;
+  position: relative;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent), rgba(255,255,255,0.05));
+  opacity: 0.5;
 }
 
 .timeline li {
   position: relative;
   padding-left: 26px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: default;
+}
+
+.timeline li:hover {
+  transform: translateX(6px);
 }
 
 .timeline li::before {
@@ -658,6 +676,14 @@ canvas {
   height: 10px;
   border-radius: 99px;
   background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 1;
+}
+
+.timeline li:hover::before {
+  transform: scale(1.4);
+  box-shadow: 0 0 20px var(--accent), inset 0 0 4px #fff;
 }
 
 .timeline strong,
@@ -4097,4 +4123,94 @@ body[data-page="planet"] .building {
 .toss-animation {
   animation: fadeSend 0.4s ease forwards !important;
   pointer-events: none;
+}
+
+/* Score Bar Chart */
+.score-chart-container {
+  margin-top: 24px;
+}
+
+.score-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 280px;
+  padding: 40px 20px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  margin-top: 20px;
+  position: relative;
+}
+
+.score-bar-chart .bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  width: 15%;
+  height: 100%;
+  justify-content: flex-end;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.score-bar-chart .bar-item:hover {
+  transform: translateY(-5px);
+}
+
+.score-bar-chart .bar {
+  width: 100%;
+  height: var(--bar-height, 0%);
+  background: linear-gradient(180deg, var(--page-accent), rgba(93, 140, 255, 0.1));
+  border-radius: 8px 8px 0 0;
+  box-shadow: 0 -5px 15px rgba(93, 140, 255, 0.4), inset 0 2px 2px rgba(255, 255, 255, 0.3);
+  transition: height 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.score-bar-chart .bar-item:hover .bar {
+  background: linear-gradient(180deg, #8d7aff, rgba(141, 122, 255, 0.2));
+  box-shadow: 0 -5px 25px rgba(141, 122, 255, 0.6), inset 0 2px 2px rgba(255, 255, 255, 0.5);
+}
+
+.score-bar-chart .label {
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.score-bar-chart .coin-value {
+  position: absolute;
+  top: calc(100% - var(--bar-height, 0%) - 30px);
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  transition: all 1s ease;
+}
+
+/* Tooltip for bar chart */
+.score-bar-chart .bar-item::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 10;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.score-bar-chart .bar-item:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }

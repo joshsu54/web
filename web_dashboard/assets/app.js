@@ -433,7 +433,7 @@ function bindExtensionTools() {
     scenarioText = `${type}\n隱私層級：${privacy}\n展示重點：${focus}\n\n展示順序：App 狀態 → Web 分析 → 自律星球視覺化 → 研究價值結論。`;
     setOutput(
       scenarioTool,
-      `<strong>${type}</strong><p>${privacy}。展示順序：App 狀態 → Web 分析 → 自律星球視覺化 → 研究價值結論。</p>`,
+      `<span class="card-icon">📝</span><div class="card-content"><strong>${type}</strong><p>${privacy}。展示順序：App 狀態 → Web 分析 → 自律星球視覺化 → 研究價值結論。</p></div>`,
     );
     saveDemoState("scenario", { type, privacy, focus });
     toast("展示腳本已產生");
