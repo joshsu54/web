@@ -1044,6 +1044,75 @@ window.bindMissions = function() {
   });
 };
 
+function bindExamTemplates() {
+  const templateListContainer = $("[data-template-list]");
+  if (!templateListContainer) return;
+
+  const defaultTemplates = [
+    { time: "週一", title: "建立目標", desc: "派發本週讀書與健康任務。" },
+    { time: "週三", title: "中段提醒", desc: "自動提醒落後小組與個人。" },
+    { time: "週五", title: "共同自律房", desc: "排程 50 分鐘團體專注。" },
+    { time: "週日", title: "週報匯出", desc: "生成班級、小組、個人摘要。" }
+  ];
+
+  const loadExamTemplates = () => {
+    const store = JSON.parse(localStorage.getItem("nudgeWebExamTemplates"));
+    return store || defaultTemplates;
+  };
+
+  const saveExamTemplates = (templates) => {
+    localStorage.setItem("nudgeWebExamTemplates", JSON.stringify(templates));
+  };
+
+  const renderExamTemplates = () => {
+    const templates = loadExamTemplates();
+    templateListContainer.innerHTML = templates.map((tpl, idx) => `
+      <article>
+        <button type="button" class="delete-template-btn" data-idx="${idx}" title="刪除">×</button>
+        <small>${tpl.time}</small>
+        <strong>${tpl.title}</strong>
+        <span>${tpl.desc}</span>
+      </article>
+    `).join("");
+
+    $$(".delete-template-btn", templateListContainer).forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const idx = parseInt(e.currentTarget.dataset.idx, 10);
+        const tpls = loadExamTemplates();
+        tpls.splice(idx, 1);
+        saveExamTemplates(tpls);
+        renderExamTemplates();
+        toast("已刪除模板");
+      });
+    });
+  };
+
+  renderExamTemplates();
+
+  const addBtn = $('[data-action="add-template"]');
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      const timeInput = $('[data-template-time]');
+      const titleInput = $('[data-template-title]');
+      const descInput = $('[data-template-desc]');
+      
+      const time = timeInput.value.trim() || "新時段";
+      const title = titleInput.value.trim() || "新模板";
+      const desc = descInput.value.trim() || "無說明";
+
+      const tpls = loadExamTemplates();
+      tpls.push({ time, title, desc });
+      saveExamTemplates(tpls);
+      renderExamTemplates();
+
+      timeInput.value = "";
+      titleInput.value = "";
+      descInput.value = "";
+      toast("已加入模板");
+    });
+  }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   try { injectModuleMenu(); } catch(e){}
   try { injectDisplayModeControls(); } catch(e){}
@@ -1055,6 +1124,7 @@ window.addEventListener("DOMContentLoaded", () => {
   try { bindExtensionTools(); } catch(e){}
   try { bindTilt(); } catch(e){}
   try { bindPresentation(); } catch(e){}
+  try { bindExamTemplates(); } catch(e){}
   try { if (window.bindMissions) window.bindMissions(); } catch(e){}
 });
 
