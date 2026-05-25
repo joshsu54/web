@@ -575,7 +575,7 @@ function bindExtensionTools() {
       card.classList.add("toss-animation");
       setTimeout(() => {
         card.classList.remove("toss-animation");
-      }, 900);
+      }, 1300);
     }
     
     const tone = $('[data-encourage-tone]', encouragementTool)?.value || "溫暖支持";
