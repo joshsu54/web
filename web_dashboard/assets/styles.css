@@ -3776,9 +3776,33 @@ body[data-page="planet"] .building {
 .galaxy-arms {
   position: absolute; width: 800px; height: 800px;
   background: repeating-conic-gradient(from 0deg, transparent 0deg, rgba(0, 255, 255, 0.1) 20deg, transparent 40deg);
-  border-radius: 50%; filter: blur(10px);
+  border-radius: 50%; filter: blur(2px);
   animation: spin2D 40s linear infinite;
   transform: rotateX(60deg);
+}
+.galaxy-planet {
+  position: absolute; width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1); transition: all 0.5s;
+  transform: translate(-50%, -50%);
+}
+.galaxy-planet.active {
+  width: 40px; height: 40px;
+  background: radial-gradient(circle, #fff, #0ff);
+  box-shadow: 0 0 20px #0ff, 0 0 40px #00f;
+}
+
+/* Black Hole Hidden Effect */
+.hidden-blackhole.active {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: #000 !important;
+  box-shadow: 0 0 20px #000, 0 0 40px #800080, 0 0 60px #4b0082, inset 0 0 20px #800080 !important;
+  animation: blackholeSpin 2s linear infinite;
+  border: 2px solid rgba(128,0,128,0.5);
+}
+@keyframes blackholeSpin {
+  0% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(180deg); }
+  100% { transform: scale(1) rotate(360deg); }
 }
 
 .view-universe {

@@ -917,7 +917,11 @@ window.bindMissions = function() {
     "專注 2 小時", "完成作業 A", "早睡 (12:00前)", 
     "閱讀 30 分鐘", "運動 30 分鐘", "喝水 2000cc", 
     "冥想 10 分鐘", "整理房間", "寫日記", 
-    "學習新單字", "少吃零食", "計畫明天"
+    "學習新單字", "少吃零食", "計畫明天",
+    "看 TED 演講", "伸展拉筋", "練習寫作",
+    "複習期末", "收拾桌面", "深呼吸練習",
+    "散步 15 分鐘", "感謝日記", "不喝飲料",
+    "聽 Podcast", "主動幫助人", "專案進度更新"
   ];
   const tasks = JSON.parse(localStorage.getItem('nudge_tasks')) || defaultTasks;
   // Initialize default if empty in localStorage just for the first time
@@ -926,7 +930,7 @@ window.bindMissions = function() {
   }
 
   list.innerHTML = "";
-  tasks.slice(0, 12).forEach((task, index) => {
+  tasks.slice(0, 24).forEach((task, index) => {
     const sId = "s" + (index + 1);
     
     // Classify task type
@@ -1043,7 +1047,16 @@ window.bindMissions = function() {
   let currentCombo = 0;
   const comboContainer = $("#comboContainer");
 
-  let unlockedPlanets = parseInt(localStorage.getItem('nudge_unlocked_planets') || '0');
+  let planetStates = JSON.parse(localStorage.getItem('nudge_planet_states')) || Array(24).fill(null);
+
+  // Position galaxy planets in a beautiful spiral
+  const galaxyPlanets = document.querySelectorAll('.galaxy-planet');
+  galaxyPlanets.forEach((p, i) => {
+    const r = 50 + i * 14; // Radius increases outwards
+    const theta = i * 137.5 * (Math.PI / 180); // Golden angle for natural spiral
+    p.style.left = `calc(50% + ${Math.cos(theta) * r}px)`;
+    p.style.top = `calc(50% + ${Math.sin(theta) * r}px)`;
+  });
 
   function triggerMeteorShower() {
     const container = document.getElementById("meteorShower");
@@ -1061,13 +1074,23 @@ window.bindMissions = function() {
   }
 
   function checkEvolution() {
-    if (unlockedPlanets >= 12) {
+    const unlockedCount = planetStates.filter(s => s !== null).length;
+    
+    // Unlock Galaxy at 12
+    if (unlockedCount >= 12) {
       document.getElementById('navGalaxy').style.display = 'inline-block';
-      // Automatically switch to Galaxy if just hit 12
-      if (unlockedPlanets === 12) {
+      if (unlockedCount === 12 && localStorage.getItem('nudge_auto_galaxy') !== 'true') {
         document.getElementById('navGalaxy').click();
-        unlockedPlanets++; // Prevent auto-switching repeatedly
-        localStorage.setItem('nudge_unlocked_planets', unlockedPlanets);
+        localStorage.setItem('nudge_auto_galaxy', 'true');
+      }
+    }
+    
+    // Unlock Universe at 24
+    if (unlockedCount >= 24) {
+      document.getElementById('navUniverse').style.display = 'inline-block';
+      if (unlockedCount === 24 && localStorage.getItem('nudge_auto_universe') !== 'true') {
+        document.getElementById('navUniverse').click();
+        localStorage.setItem('nudge_auto_universe', 'true');
       }
     }
   }
@@ -1092,49 +1115,72 @@ window.bindMissions = function() {
     }, 2500);
   }
 
-  checks.forEach(check => {
+  checks.forEach((check, index) => {
     check.addEventListener("change", (e) => {
       const satClass = e.target.dataset.satellite;
       const taskType = e.target.dataset.taskType || "general";
-      if (!satClass) return;
-      const sat = $("." + satClass);
-      const plot = $("." + satClass.replace("s", "p")); // for city view
+      const sat = satClass ? $("." + satClass) : null;
+      const plot = satClass ? $("." + satClass.replace("s", "p")) : null; // for city view
+      const gal = $(".g" + (index + 1)); // galaxy planet
       
       if (e.target.checked) {
         let isSpecial = false;
-        if (sat) {
-          sat.classList.add("active");
-          // 20% Chance for Hidden Comet/Moon
+        let rareType = planetStates[index];
+        
+        // Generate RNG state if first time
+        if (!rareType) {
           const rng = Math.random();
-          if (rng < 0.2) {
+          if (rng < 0.05) rareType = 'hidden-blackhole'; // 5% chance
+          else if (rng < 0.15) rareType = 'hidden-comet'; // 10% chance
+          else if (rng < 0.25) rareType = 'hidden-moon'; // 10% chance
+          else rareType = 'standard';
+          
+          planetStates[index] = rareType;
+          localStorage.setItem('nudge_planet_states', JSON.stringify(planetStates));
+        }
+
+        // Apply to Solar System (s1-s12)
+        if (sat && index < 12) {
+          sat.classList.add("active");
+          if (rareType !== 'standard') {
+            sat.classList.add(rareType);
             isSpecial = true;
-            sat.classList.add(rng < 0.1 ? "hidden-comet" : "hidden-moon");
-            triggerMeteorShower();
+            if (rareType !== 'hidden-blackhole') triggerMeteorShower();
           }
         }
+        
+        // Apply to Galaxy (g1-g24)
+        if (gal) {
+          gal.classList.add("active");
+          if (rareType !== 'standard') {
+            gal.classList.add(rareType);
+            isSpecial = true;
+          }
+        }
+
         if (plot) {
           plot.classList.add("built");
           plot.classList.add("built-" + taskType);
         }
+        
         showCombo(isSpecial);
-        unlockedPlanets++;
-        localStorage.setItem('nudge_unlocked_planets', unlockedPlanets);
         checkEvolution();
       } else {
+        // Solar System
         if (sat) {
           sat.classList.remove("active");
-          sat.classList.remove("hidden-comet");
-          sat.classList.remove("hidden-moon");
+          sat.classList.remove("hidden-comet", "hidden-moon", "hidden-blackhole");
+        }
+        // Galaxy
+        if (gal) {
+          gal.classList.remove("active");
+          gal.classList.remove("hidden-comet", "hidden-moon", "hidden-blackhole");
         }
         if (plot) {
-          plot.classList.remove("built");
-          plot.classList.remove("built-study");
-          plot.classList.remove("built-health");
-          plot.classList.remove("built-general");
-          plot.classList.remove("built-skyscraper");
+          plot.classList.remove("built", "built-study", "built-health", "built-general", "built-skyscraper");
         }
         currentCombo = 0;
-        // Don't decrease historical planets count on uncheck to preserve evolution
+        // Historical array preserves the unlocked RNG state
       }
     });
   });
@@ -1161,10 +1207,10 @@ window.bindMissions = function() {
   if (btnGalaxy) btnGalaxy.addEventListener('click', () => switchStage('galaxy'));
   if (btnUniverse) btnUniverse.addEventListener('click', () => switchStage('universe'));
 
-  // Initial check
-  if (unlockedPlanets >= 12 && btnGalaxy) {
-    btnGalaxy.style.display = 'inline-block';
-  }
+  // Initial UI check for Evolution buttons based on history
+  const unlockedCount = planetStates.filter(s => s !== null).length;
+  if (unlockedCount >= 12 && btnGalaxy) btnGalaxy.style.display = 'inline-block';
+  if (unlockedCount >= 24 && btnUniverse) btnUniverse.style.display = 'inline-block';
   // Mouse Wheel Zoom for City View
   const cityView = document.querySelector('.view-city');
   const neighborhoodScene = document.querySelector('.neighborhood-scene');
