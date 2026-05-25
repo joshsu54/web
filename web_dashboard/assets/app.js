@@ -925,7 +925,9 @@ window.bindMissions = function() {
     
     // Classify task type
     let taskType = "general";
-    if (/(書|讀|作業|考試|專注|報告)/.test(task)) {
+    if (/(專案|期末|大考|挑戰)/.test(task)) {
+      taskType = "skyscraper";
+    } else if (/(書|讀|作業|考試|專注|報告)/.test(task)) {
       taskType = "study";
     } else if (/(健康|水|睡|運動|步)/.test(task)) {
       taskType = "health";

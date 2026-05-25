@@ -3830,6 +3830,19 @@ body[data-page="planet"] .building {
 .city-plot.built-health::before { content: "🌲"; font-size: 60px; }
 .city-plot.built-general::before { content: "🏠"; }
 
+/* Epic Skyscraper style */
+.city-plot.built-skyscraper {
+  z-index: 20; /* Ensure it stays on top of smaller buildings */
+}
+.city-plot.built-skyscraper::before { 
+  content: "🏢"; 
+  font-size: 110px; 
+  /* Lift it higher and scale it up */
+  transform: translate(-50%, -95%) rotateZ(-45deg) rotateX(-60deg) scale(1.6);
+  filter: drop-shadow(-15px 25px 20px rgba(0,0,0,0.8));
+  animation: bounceBuildSkyscraper 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
 /* Glow effect when built */
 .city-plot.built::after {
   content: "";
@@ -3846,11 +3859,25 @@ body[data-page="planet"] .building {
   pointer-events: none;
 }
 
+/* Skyscraper epic glow */
+.city-plot.built-skyscraper::after {
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(255, 200, 50, 0.7) 0%, transparent 70%);
+}
+
 @keyframes bounceBuild {
   0% { transform: translate(-50%, -90%) rotateZ(-45deg) rotateX(-60deg) scale(0); opacity: 0; }
   50% { transform: translate(-50%, -90%) rotateZ(-45deg) rotateX(-60deg) scale(1.15); opacity: 1; }
   100% { transform: translate(-50%, -90%) rotateZ(-45deg) rotateX(-60deg) scale(1); opacity: 1; }
 }
+
+@keyframes bounceBuildSkyscraper {
+  0% { transform: translate(-50%, -95%) rotateZ(-45deg) rotateX(-60deg) scale(0); opacity: 0; }
+  50% { transform: translate(-50%, -95%) rotateZ(-45deg) rotateX(-60deg) scale(1.8); opacity: 1; }
+  100% { transform: translate(-50%, -95%) rotateZ(-45deg) rotateX(-60deg) scale(1.6); opacity: 1; }
+}
+
 
 @keyframes pulseGlow {
   0% { opacity: 0.3; transform: translate(-50%, -50%) rotateZ(-45deg) rotateX(-60deg) scale(0.9); }
