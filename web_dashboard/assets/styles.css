@@ -510,10 +510,9 @@ p {
 .story-flow article,
 .matrix-grid div,
 .coach-stack article,
-.route-line div,
 .guardian-flow article,
 .program-grid article,
-.economy-grid div,
+.economy-grid > div,
 .research-pipeline article,
 .showcase-strip div {
   animation: riseIn 620ms ease both;
@@ -1656,7 +1655,7 @@ aside.panel {
 
 .matrix-grid div,
 .coach-stack article,
-.economy-grid div,
+.economy-grid > div,
 .research-pipeline article {
   min-height: 132px;
   padding: 16px;
@@ -1872,7 +1871,7 @@ aside.panel {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.economy-grid div {
+.economy-grid > div {
   position: relative;
   border-color: rgba(255, 173, 47, 0.3);
   background: linear-gradient(145deg, rgba(255, 173, 47, 0.15), rgba(255, 102, 120, 0.08));
@@ -1881,7 +1880,7 @@ aside.panel {
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-.economy-grid div:hover {
+.economy-grid > div:hover {
   transform: translateY(-5px) scale(1.02);
   border-color: rgba(255, 173, 47, 0.6);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 173, 47, 0.25);
