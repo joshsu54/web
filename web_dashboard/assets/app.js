@@ -1151,7 +1151,7 @@ window.bindMissions = function() {
     setTimeout(() => {
       overlay.classList.remove('active');
       elements.forEach(el => el.classList.remove('exploded-out'));
-    }, 3000);
+    }, 4500);
   }
 
   function triggerMeteorShower() {
