@@ -3920,13 +3920,80 @@ body[data-page="planet"] .building {
 .u-orbit-w .universe-planet { animation: uWCounter 60s linear infinite reverse; }
 @keyframes uWCounter { 0% { transform: translate(-50%, -50%) rotateY(-135deg) rotateX(-135deg); } 100% { transform: translate(-50%, -50%) rotateY(-495deg) rotateX(-495deg); } }
 
-/* Explosion Overlay */
+/* Explosion Overlay Enhancements */
 .explosion-overlay {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none; z-index: 9999;
   display: flex; justify-content: center; align-items: center;
   overflow: hidden;
 }
+
+/* Pre-blast darken */
+.explosion-overlay.active {
+  animation: preBlastDarken 5.5s forwards;
+}
+@keyframes preBlastDarken {
+  0% { background: transparent; }
+  5% { background: rgba(0,0,0,0.8); }
+  8% { background: transparent; }
+  100% { background: transparent; }
+}
+
+/* 1. Supernova Rays */
+.supernova-rays {
+  position: absolute; top: 50%; left: 50%; width: 200vw; height: 200vw;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(0,255,255,0.8) 10deg, transparent 20deg, rgba(255,0,255,0.8) 40deg, transparent 50deg, #fff 60deg, transparent 70deg);
+  opacity: 0;
+}
+.explosion-overlay.active .supernova-rays {
+  animation: spinRays 4.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+@keyframes spinRays {
+  0% { transform: translate(-50%, -50%) rotate(0deg) scale(0); opacity: 0; }
+  6% { transform: translate(-50%, -50%) rotate(0deg) scale(0); opacity: 0; }
+  10% { transform: translate(-50%, -50%) rotate(180deg) scale(2); opacity: 1; }
+  30% { transform: translate(-50%, -50%) rotate(360deg) scale(2); opacity: 0; }
+  100% { transform: translate(-50%, -50%) rotate(360deg) scale(2); opacity: 0; }
+}
+
+/* 2. Shockwave Ring */
+.shockwave-ring {
+  position: absolute; width: 10px; height: 10px; border-radius: 50%;
+  border: 50px solid rgba(0, 255, 255, 0.8);
+  opacity: 0;
+  box-shadow: 0 0 100px #0ff, inset 0 0 100px #0ff;
+}
+.explosion-overlay.active .shockwave-ring {
+  animation: shockwaveExpand 4.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+@keyframes shockwaveExpand {
+  0% { transform: scale(0); opacity: 0; border-width: 50px; }
+  5% { transform: scale(0); opacity: 0; border-width: 50px; }
+  10% { transform: scale(50); opacity: 1; border-width: 20px; border-color: rgba(255,0,255,0.8); box-shadow: 0 0 100px #f0f, inset 0 0 100px #f0f; }
+  30% { transform: scale(200); opacity: 0; border-width: 1px; border-color: rgba(255,140,0,0); }
+  100% { transform: scale(200); opacity: 0; border-width: 1px; }
+}
+
+/* 3. Atomic Flash */
+.atomic-flash {
+  position: absolute; width: 20px; height: 20px; border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 100px 50px #fff, 0 0 250px 150px #0ff, 0 0 500px 300px #f0f;
+  opacity: 0;
+}
+.explosion-overlay.active .atomic-flash {
+  animation: atomicBlastUltra 5.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+@keyframes atomicBlastUltra {
+  0% { transform: scale(5); opacity: 0; box-shadow: 0 0 10px #000; }
+  5% { transform: scale(0.1); opacity: 1; box-shadow: 0 0 10px #0ff; }
+  7% { transform: scale(200); opacity: 1; background: #fff; box-shadow: 0 0 100px 50px #fff, 0 0 250px 150px #0ff, 0 0 500px 300px #f0f; }
+  15% { transform: scale(300); opacity: 0; }
+  100% { transform: scale(300); opacity: 0; }
+}
+
+/* 4. Starry Sky Reveal */
 .starry-sky {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   background: #000;
@@ -3945,42 +4012,62 @@ body[data-page="planet"] .building {
   background-repeat: repeat;
   opacity: 0;
 }
-.atomic-flash {
-  position: absolute; width: 20px; height: 20px; border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 100px 50px #fff, 0 0 250px 150px #ffaa00, 0 0 500px 300px #ff4500;
-  opacity: 0;
-}
-
-.explosion-overlay.active .atomic-flash {
-  animation: atomicBlast 4.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-}
 .explosion-overlay.active .starry-sky {
-  animation: revealStars 4.5s linear forwards;
+  animation: revealStarsUltra 5.5s linear forwards;
 }
-
-@keyframes atomicBlast {
-  0% { transform: scale(1); opacity: 0; }
-  2% { transform: scale(200); opacity: 1; }
-  15% { transform: scale(200); opacity: 0; }
-  100% { transform: scale(200); opacity: 0; }
-}
-@keyframes revealStars {
+@keyframes revealStarsUltra {
   0% { opacity: 0; }
-  5% { opacity: 0; }
+  10% { opacity: 0; }
   15% { opacity: 1; transform: scale(1); }
   90% { opacity: 1; transform: scale(1.1); }
   100% { opacity: 0; transform: scale(1.2); }
 }
 
+/* 5. Exploded UI Elements */
 .exploded-out {
-  animation: blastAway 4.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
+  animation: blastAwayUltra 5.5s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
 }
-@keyframes blastAway {
-  0% { transform: translate(-50%, -50%) scale(1) !important; opacity: 1; }
-  5% { transform: translate(-50%, -50%) scale(10) !important; opacity: 0; filter: blur(20px) brightness(5); }
-  90% { transform: translate(-50%, -50%) scale(10) !important; opacity: 0; }
-  100% { transform: translate(-50%, -50%) scale(1) !important; opacity: 1; }
+@keyframes blastAwayUltra {
+  0% { transform: translate(-50%, -50%) scale(1) !important; opacity: 1; filter: contrast(1); }
+  5% { transform: translate(-50%, -50%) scale(0.8) !important; opacity: 1; filter: contrast(2) brightness(0.5); }
+  10% { transform: translate(-50%, -50%) scale(15) !important; opacity: 0; filter: blur(30px) brightness(5) hue-rotate(90deg); }
+  90% { transform: translate(-50%, -50%) scale(15) !important; opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1) !important; opacity: 1; filter: contrast(1); }
+}
+
+/* Screen Shake for the whole body */
+.shake-screen {
+  animation: screenShakeAnim 1s ease-out;
+}
+@keyframes screenShakeAnim {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  5% { transform: translate(-10px, -10px) rotate(-1deg); }
+  10% { transform: translate(15px, 10px) rotate(1deg); }
+  15% { transform: translate(-15px, 15px) rotate(-2deg); }
+  20% { transform: translate(20px, -15px) rotate(2deg); }
+  25% { transform: translate(-10px, 10px) rotate(-1deg); }
+  30% { transform: translate(10px, -10px) rotate(1deg); }
+  40% { transform: translate(-5px, 5px) rotate(0deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Debris Particles */
+.debris-particle {
+  position: absolute; top: 50%; left: 50%;
+  width: 4px; height: 10px; background: #fff;
+  border-radius: 2px;
+  box-shadow: 0 0 10px #0ff;
+  opacity: 0;
+}
+.explosion-overlay.active .debris-particle {
+  animation: particleShoot 3s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+@keyframes particleShoot {
+  0% { transform: translate(0, 0) scale(1); opacity: 0; }
+  5% { transform: translate(0, 0) scale(1); opacity: 0; }
+  10% { transform: translate(var(--dx), var(--dy)) scale(2); opacity: 1; }
+  30% { transform: translate(calc(var(--dx) * 2), calc(var(--dy) * 2)) scale(0.5); opacity: 0; }
+  100% { transform: translate(calc(var(--dx) * 2), calc(var(--dy) * 2)) scale(0.5); opacity: 0; }
 }
 @keyframes zoomUniverse {
   0% { transform: scale(1); opacity: 0.1; }

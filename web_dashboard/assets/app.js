@@ -1144,14 +1144,35 @@ window.bindMissions = function() {
     if (!overlay) return;
     overlay.classList.add('active');
     
+    // Screen shake
+    document.body.classList.add('shake-screen');
+    
+    // Generate debris
+    const debrisContainer = document.getElementById('debrisContainer');
+    if (debrisContainer) {
+      debrisContainer.innerHTML = '';
+      for(let i=0; i<30; i++) {
+        const d = document.createElement('div');
+        d.className = 'debris-particle';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 300 + Math.random() * 500;
+        d.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+        d.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+        d.style.transform = `rotate(${angle}rad)`;
+        debrisContainer.appendChild(d);
+      }
+    }
+
     // Blast away all UI elements
     const elements = document.querySelectorAll('.mission-satellite.active, .galaxy-planet.active, .universe-planet.active, .stage-hud, .mission-log-panel');
     elements.forEach(el => el.classList.add('exploded-out'));
     
     setTimeout(() => {
       overlay.classList.remove('active');
+      document.body.classList.remove('shake-screen');
+      if (debrisContainer) debrisContainer.innerHTML = '';
       elements.forEach(el => el.classList.remove('exploded-out'));
-    }, 4500);
+    }, 5500);
   }
 
   function triggerMeteorShower() {
