@@ -3738,12 +3738,18 @@ body[data-page="planet"] .building {
 .s7 { top: 0%; left: 50%; animation: counterOrbit3 50s linear infinite; }
 .s8 { top: 75%; left: 93.3%; animation: counterOrbit3 50s linear infinite; }
 .s9 { top: 75%; left: 6.7%; animation: counterOrbit3 50s linear infinite; }
-/* counterOrbit3 is defined above */
+@keyframes counterOrbit3 {
+  0% { transform: translate(-50%, -50%) rotateZ(0deg) rotateY(5deg) rotateX(-72deg); }
+  100% { transform: translate(-50%, -50%) rotateZ(-360deg) rotateY(5deg) rotateX(-72deg); }
+}
 
 .s10 { top: 0%; left: 50%; animation: counterOrbit4 20s linear infinite; }
 .s11 { top: 75%; left: 93.3%; animation: counterOrbit4 20s linear infinite; }
 .s12 { top: 75%; left: 6.7%; animation: counterOrbit4 20s linear infinite; }
-/* counterOrbit4 is defined above */
+@keyframes counterOrbit4 {
+  0% { transform: translate(-50%, -50%) rotateZ(0deg) rotateY(-25deg) rotateX(-60deg); }
+  100% { transform: translate(-50%, -50%) rotateZ(360deg) rotateY(-25deg) rotateX(-60deg); }
+}
 
 /* Meteor Shower Effect */
 .meteor-shower-container {
@@ -3797,6 +3803,16 @@ body[data-page="planet"] .building {
   background: rgba(255, 255, 255, 0.1); transition: all 0.5s;
   transform: translate(-50%, -50%);
 }
+@keyframes gPlanetCounter {
+  0% { transform: translate(-50%, -50%) rotateZ(0deg) rotateY(-15deg) rotateX(-65deg); }
+  100% { transform: translate(-50%, -50%) rotateZ(-360deg) rotateY(-15deg) rotateX(-65deg); }
+}
+.g-orbit-one .galaxy-planet { animation: gPlanetCounter 40s linear infinite reverse; }
+.g-orbit-two .galaxy-planet { animation: gPlanetCounter 45s linear infinite; }
+.g-orbit-three .galaxy-planet { animation: gPlanetCounter 50s linear infinite reverse; }
+.g-orbit-four .galaxy-planet { animation: gPlanetCounter 55s linear infinite; }
+.g-orbit-five .galaxy-planet { animation: gPlanetCounter 60s linear infinite reverse; }
+.g-orbit-six .galaxy-planet { animation: gPlanetCounter 65s linear infinite; }
 .galaxy-planet.active {
   width: 45px; height: 45px;
   background: radial-gradient(circle at 30% 30%, #e0c3fc, #8ec5fc);
