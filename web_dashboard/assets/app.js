@@ -1302,6 +1302,24 @@ window.bindMissions = function() {
           plot.classList.add("built-" + taskType);
         }
         
+        // --- UNITY INTEGRATION ---
+        // If Unity is loaded and the task is ticked, send a signal to spawn a house!
+        if (window.unityInstance) {
+          // SendMessage('ObjectName', 'MethodName', 'Parameter')
+          // Assuming taskType is 'study', 'health', 'general', etc.
+          // Map to capitalized or specific task types if necessary, or just send raw.
+          // In BuildingSpawner.cs, it receives a string.
+          let unityTaskParam = "Default";
+          if (taskType === "study") unityTaskParam = "Study";
+          else if (taskType === "health") unityTaskParam = "Health";
+          else unityTaskParam = "General";
+          
+          window.unityInstance.SendMessage('NetworkManager', 'ReceiveSignalFromWeb', unityTaskParam);
+          
+          // Show a small notification toast to confirm it triggered
+          showToast(`已傳送訊號至自律城市：${unityTaskParam} 任務`);
+        }
+        
         showCombo(isSpecial);
         checkEvolution();
       } else {
@@ -1471,6 +1489,31 @@ function bindUnityIntegration() {
       }
     });
   }
+}
+
+// Simple Toast Notification Utility
+function showToast(message) {
+  let toast = document.createElement('div');
+  toast.innerText = message;
+  toast.style.position = 'fixed';
+  toast.style.bottom = '20px';
+  toast.style.right = '20px';
+  toast.style.backgroundColor = 'rgba(0, 255, 255, 0.2)';
+  toast.style.color = '#0ff';
+  toast.style.border = '1px solid #0ff';
+  toast.style.padding = '12px 24px';
+  toast.style.borderRadius = '8px';
+  toast.style.boxShadow = '0 0 15px rgba(0,255,255,0.4)';
+  toast.style.zIndex = '10001';
+  toast.style.fontFamily = 'Inter, sans-serif';
+  toast.style.transition = 'opacity 0.3s ease-in-out';
+  
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }
 
 window.addEventListener("DOMContentLoaded", () => {
