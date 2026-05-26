@@ -1305,19 +1305,26 @@ window.bindMissions = function() {
         // --- UNITY INTEGRATION ---
         // If Unity is loaded and the task is ticked, send a signal to spawn a house!
         if (window.unityInstance) {
-          // SendMessage('ObjectName', 'MethodName', 'Parameter')
-          // Assuming taskType is 'study', 'health', 'general', etc.
-          // Map to capitalized or specific task types if necessary, or just send raw.
-          // In BuildingSpawner.cs, it receives a string.
           let unityTaskParam = "Default";
           if (taskType === "study") unityTaskParam = "Study";
           else if (taskType === "health") unityTaskParam = "Health";
           else unityTaskParam = "General";
           
-          window.unityInstance.SendMessage('NetworkManager', 'ReceiveSignalFromWeb', unityTaskParam);
+          // SendMessage('ObjectName', 'MethodName', 'Parameter')
+          // 注意：第一個參數必須是 Unity 場景中掛載該腳本的「物件名稱」
+          // 第二個參數是對應腳本裡的 public 方法名稱 (OnHabitCompleted)
+          try {
+            window.unityInstance.SendMessage('BuildingSpawner', 'OnHabitCompleted', unityTaskParam);
+            window.unityInstance.SendMessage('GameManager', 'OnHabitCompleted', unityTaskParam);
+            window.unityInstance.SendMessage('NetworkManager', 'OnHabitCompleted', unityTaskParam);
+          } catch(e) {
+            console.log("Unity SendMessage warning:", e);
+          }
           
           // Show a small notification toast to confirm it triggered
           showToast(`已傳送訊號至自律城市：${unityTaskParam} 任務`);
+        } else {
+          console.log("Unity instance not ready or not loaded yet.");
         }
         
         showCombo(isSpecial);
