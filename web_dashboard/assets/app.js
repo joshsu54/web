@@ -1453,6 +1453,26 @@ function bindExamTemplates() {
   }
 }
 
+function bindUnityIntegration() {
+  const btnCompleteChallenge = document.getElementById("btnCompleteChallenge");
+  if (btnCompleteChallenge) {
+    btnCompleteChallenge.addEventListener("click", () => {
+      try {
+        if (typeof unityInstance !== 'undefined' && unityInstance) {
+          unityInstance.SendMessage('NetworkManager', 'ReceiveSignalFromWeb', 'Study');
+          console.log("Sent ReceiveSignalFromWeb('Study') to Unity");
+          if (typeof toast === 'function') toast("已傳送完成挑戰訊號至 Unity");
+        } else {
+          console.warn("unityInstance not found. WebGL build might not be loaded yet.");
+          if (typeof toast === 'function') toast("尚未連結 Unity，但按鈕綁定成功");
+        }
+      } catch(e) {
+        console.error("Error sending message to Unity:", e);
+      }
+    });
+  }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   try { injectModuleMenu(); } catch(e){}
   try { injectDisplayModeControls(); } catch(e){}
@@ -1465,6 +1485,7 @@ window.addEventListener("DOMContentLoaded", () => {
   try { bindTilt(); } catch(e){}
   try { bindPresentation(); } catch(e){}
   try { bindExamTemplates(); } catch(e){}
+  try { bindUnityIntegration(); } catch(e){}
   try { if (window.bindMissions) window.bindMissions(); } catch(e){}
 });
 
